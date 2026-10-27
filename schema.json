@@ -1,0 +1,113 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Problemă de olimpiadă",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string"
+    },
+    "materie": {
+      "type": "string",
+      "enum": [
+        "matematica",
+        "informatica"
+      ]
+    },
+    "clasa": {
+      "type": "integer",
+      "minimum": 9,
+      "maximum": 12
+    },
+    "an": {
+      "type": "integer"
+    },
+    "etapa": {
+      "type": "string",
+      "enum": [
+        "locala",
+        "judeteana",
+        "nationala"
+      ]
+    },
+    "judet": {
+      "type": "string",
+      "description": "Codul județului (ex. DJ, IS), pentru etapele locale/județene"
+    },
+    "nr_problema": {
+      "type": "integer"
+    },
+    "enunt": {
+      "type": "string",
+      "description": "Textul comun tuturor subpunctelor; gol dacă nu există"
+    },
+    "subpuncte": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "litera": {
+            "type": "string"
+          },
+          "enunt": {
+            "type": "string"
+          },
+          "solutie": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "litera",
+          "enunt"
+        ]
+      }
+    },
+    "solutie": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "taguri": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "are_figura": {
+      "type": "boolean"
+    },
+    "sursa_url": {
+      "type": "string",
+      "description": "Link-ul de descărcare de pe ssmr.ro (arhiva ZIP a județului)"
+    },
+    "fisier_sursa": {
+      "type": "string",
+      "description": "Numele fișierului PDF din arhiva ZIP"
+    },
+    "sursa_originala": {
+      "type": "string",
+      "description": "Publicația din care provine problema, dacă e menționată"
+    },
+    "licenta": {
+      "type": "string"
+    },
+    "autor": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "required": [
+    "id",
+    "materie",
+    "clasa",
+    "an",
+    "etapa",
+    "enunt",
+    "sursa_url"
+  ]
+}
