@@ -111,18 +111,30 @@ Schema formală: `docs/schema.json` (JSON Schema).
  "sursa_url": "https://ssmr.ro/files/onm2024/faza_locala/subiecte/Dolj.zip",
  "fisier_sursa": "12_ONM_locala_DJ_Subiecte_2024 .pdf",
  "sursa_originala": "Gazeta Matematică nr. 9/2023", "licenta": "© SSMR. Utilizare comercială doar cu acordul scris al SSMR."}
+
+ {"id": "matematica-2024-locala-is-11-p2", "materie": "matematica", "clasa": 11,
+ "an": 2024, "etapa": "locala", "judet": "IS", "nr_problema": 2,
+ "enunt": "Pentru fiecare număr natural $n$ se consideră funcția $f_n: \\mathbb{R}^* \\to \\mathbb{R}$, $f_n(x) = \\frac{\\sin x}{x^n}$.",
+ "subpuncte": [
+   {"litera": "a", "enunt": "Arătați că funcția $f_n$ are limită la $+\\infty$ dacă și numai dacă $n \\geq 1$."},
+   {"litera": "b", "enunt": "Arătați că funcția $f_n$ are limită în 0 dacă și numai dacă $n$ este impar sau $n = 0$."}],
+ "solutie": null, "taguri": ["limite de functii"], "are_figura": false,
+ "sursa_url": "https://ssmr.ro/files/onm2024/faza_locala/subiecte/Iasi.zip",
+ "fisier_sursa": "11_subiect.pdf", "licenta": "[de verificat]"}
 ```
-Exemplul are `sursa_originala` și nu are subpuncte.
+Primul exemplu are `sursa_originala` și nu are subpuncte. Al doilea are subpuncte și nu are `sursa_originala`. 
+Ambele sunt valide.
+
 
 ## 8. Eșantion
 `data/sample.jsonl`: 24 de probleme de matematică, clasele IX–XII, etapa locală
 2024, transcrise manual din PDF-urile publicate pe ssmr.ro.
 
-## (OPTIONAL) 9. Cum arătăm că e util
+## 9. (OPTIONAL) Cum arătăm că e util
 Rulăm 2–3 modele LLM pe eșantion și comparăm acuratețea pe materie, clasă și etapă.
 Așa obținem un prim benchmark de raționament STEM în limba română.
 
-## 10. Limitări și pași următori
+## 10. Limitări
 - Textul extras direct din PDF pierde structura formulelor (exponenți, fracții,
   vectori, matrice). Paginile sunt transcrise în LaTeX după imagine (OCR/AI), apoi
   validate automat (randare KaTeX) și manual, pe un eșantion.
@@ -132,7 +144,8 @@ Așa obținem un prim benchmark de raționament STEM în limba română.
   timp/memorie, care vor deveni câmpuri opționale ulterior.
 - Tagurile din eșantion sunt puse manual. În pipeline vor fi alese automat dintr-o
   listă fixă, derivată din programa școlară, și verificate pe un subset.
-- Etape următoare: pipeline (deduplicare, outlieri, tagging), proveniența
-  fiecărui câmp (original / derivat / AI / manual) și evaluarea utilității.
 - Problemele SSMR nu au licență deschisă.  
   Pentru publicarea completă a datasetului sau pentru orice utilizare comercială este necesar acordul SSMR.
+
+## 11. Pași următori
+- Etapa următoare: pipeline (deduplicare, outlieri, tagging), proveniența fiecărui câmp (original / derivat / AI / manual) și evaluarea utilității.
