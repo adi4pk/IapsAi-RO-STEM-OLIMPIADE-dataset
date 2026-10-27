@@ -112,8 +112,7 @@ Schema formală: `docs/schema.json` (JSON Schema).
  "fisier_sursa": "12_ONM_locala_DJ_Subiecte_2024 .pdf",
  "sursa_originala": "Gazeta Matematică nr. 9/2023", "licenta": "© SSMR. Utilizare comercială doar cu acordul scris al SSMR."}
 ```
-Primul exemplu are `sursa_originala` și nu are subpuncte. Al doilea are subpuncte
-și nu are `sursa_originala`. Ambele sunt valide.
+Exemplul are `sursa_originala` și nu are subpuncte.
 
 ## 8. Eșantion
 `data/sample.jsonl`: 24 de probleme de matematică, clasele IX–XII, etapa locală
