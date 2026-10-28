@@ -51,8 +51,8 @@ arhive nu are link propriu, proveniența unei probleme este dată de perechea
 
 **Dimensiune estimată (v1):** 5-10 MB.
 
-**Colectare:** eșantionul e strâns manual. Ulterior folosim un scraper care descarcă
-arhivele ZIP, le dezarhivează și transcrie paginile PDF în text cu LaTeX (OCR/AI).
+**Colectare:** eșantionul e colectat manual. Ulterior va fi folosit un scraper care va descărca
+arhivele ZIP, le va dezarhiva și va transcrie paginile PDF în text cu LaTeX (OCR/AI).
 
 **Atribuire:**
 - unele surse cer păstrarea mențiunilor despre autori și concurs. Pentru acestea
@@ -66,9 +66,8 @@ arhivele ZIP, le dezarhivează și transcrie paginile PDF în text cu LaTeX (OCR
   apar în subiect sau termenii sursei cer menționarea lor**. Sunt date publice.
   În rest, câmpul lipsește.
 - Câmpul `judet` identifică doar județul care a organizat etapa, nu persoane.
-- Nu colectăm listele de rezultate sau de premiați (conțin nume de elevi).
-- Datele brute (ZIP-uri, PDF-uri, pagini HTML) **nu se urcă pe GitHub**. În repo
-  stau doar scripturile, schema și eșantionul procesat.
+- Nu se vor colecta listele de rezultate (conțin nume de elevi).
+- În repo vor sta doar scripturile, schema și eșantionul procesat, datele brute nu vor fi incarcate pe github.
 
 ## 6. Schema
 | Câmp              | Tip           | Oblig. | Descriere |
