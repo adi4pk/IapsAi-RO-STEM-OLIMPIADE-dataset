@@ -5,7 +5,7 @@ import * as fs from "fs/promises";
 
 let url:string = "https://ssmr.ro/onm2024";
 
-export async function getData() {
+export async function getData(numeJudet: string) {
   const headers: HeadersInit = {
     accept:
       "text/html,application/xhtml+xml,application/xml;q=0.9,image/jxl,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
@@ -20,12 +20,13 @@ export async function getData() {
   const $ = cheerio.load(html);
 
   //2. FIND iframe element
-  const iframePath = $("iframe").attr("src");
-  if (!iframePath) {
-    throw new Error("iframePath not found");
+  const iframeSrc = $("iframe").attr("src");       //src --> zipPath https://ssmr.ro/files/onm2024/faza_locala/index.html
+  if (!iframeSrc) {
+    throw new Error("iframeSrc not found");
   }
+  console.log("TEST :::" + iframeSrc);
 
-  const iframeUrl = new URL(iframePath, url).href;
+  const iframeUrl = new URL(iframeSrc, url).href;
   console.log("iframe URL: ", iframeUrl);
 
   //3. Fetch iframe page
@@ -35,10 +36,27 @@ export async function getData() {
 
   // 4. Find ZIP path INSIDE iframe
 
-  const zipPath = $iframe("a.satuMare").attr("href"); //
+  const zipPath = $iframe(`a.${numeJudet.trim().toLowerCase()}`).attr("href"); //href = "./subiecte/Satu_Mare.zip"  //toLowerCase?
 
-  console.log("Contains satuMare:", iframeHtml.includes("satuMare"));
-  console.log("Contains Satu_Mare.zip:", iframeHtml.includes("Satu_Mare.zip"));
+  const $harta = $iframe('ul[class="mapRomania"]');
+  const judete = $iframe("ul.mapRomania > li")      // or $harta.children
+
+      let found:boolean = false;
+
+  for(let i=0; i<judete.length; i++){
+    if(numeJudet.trim().toLowerCase() === $iframe(judete[i]).find("a").attr("class")?.toLowerCase()){
+        found = true;
+        break;
+    }
+  }
+
+  if (!found){
+        console.log("Judetul nu a fost gasit.");
+        return;
+    }
+
+  console.log(`Contains ${numeJudet}:`, iframeHtml.includes(numeJudet));
+  console.log(`Contains ${numeJudet}.zip: `, iframeHtml.includes(`${numeJudet}.zip`));
   console.log("Contains map_block:", iframeHtml.includes("map_block"));
   //   console.log(html);
   // const zipPath = $('a[href*="Satu_Mare.zip"]').attr("href");
@@ -55,7 +73,7 @@ export async function getData() {
   console.log("Status:", response.status);
   console.log("URL:", response.url);
   console.log("HTML length:", html.length);
-  console.log("satuMare matches:", $("a.satuMare").length);
+  console.log(`${numeJudet.trim()} matches:`, $iframe(`a.${numeJudet.trim().toLowerCase()}`).length);
 
   //6. Download the .zip file
   const zipResponse = await fetch(zipUrl);
@@ -70,4 +88,4 @@ export async function getData() {
   await fs.writeFile("archive.zip", buffer);
 }
 
-let response = await getData();
+let response = await getData("Dolj");
