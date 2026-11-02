@@ -85,7 +85,10 @@ export async function getData(numeJudet: string) {
     await zipResponse.arrayBuffer()
 ); 
 
-  await fs.writeFile("archive.zip", buffer);
+  const folderName = numeJudet.trim();
+  
+  await fs.mkdir(folderName, {recursive: true});
+  await fs.writeFile(`${numeJudet}/archive.zip`, buffer)
 }
 
 let response = await getData("Dolj");
