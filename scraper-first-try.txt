@@ -1,0 +1,12 @@
+document.querySelector('span.hero__primary-text').textContent
+document.querySelector('span[class="hero__primary-text"]').textContent
+
+document.querySelector('div[class="sc-6339114b-0 ckcdKn"] > h1 > span').textContent -- it works with more than a class too.
+
+document.querySelector('div[class="sc-a30a09c4-2 bRKtAc"] > span').textContent
+
+document.querySelector('div[class="sc-a30a09c4-2 bRKtAc"] > span[class="sc-a30a09c4-1 leFYws"').textContent -- it works by specifying classes for both elements
+
+document.querySelector('.hero__primary-text')?.textContent
+
+$('.hero__primary-text') -- JQuery
