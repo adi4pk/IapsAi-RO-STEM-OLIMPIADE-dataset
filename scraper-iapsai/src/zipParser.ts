@@ -1,8 +1,10 @@
 import * as cheerio from "cheerio";
 import * as json2csv from "json2csv";
 import * as fs from "fs/promises";
+import * as path from "path";
 
-import { DOWNLOAD_DIR } from "./config";
+
+import { DOWNLOAD_DIR, ARCHIVE_DIR } from "./config";
 
 
 let url:string = "https://ssmr.ro/onm2024";
@@ -83,14 +85,15 @@ export async function getData(numeJudet: string) {
     throw new Error(`Download failed: ${zipResponse.status}`);
   }
 
-  const buffer = Buffer.from(       //Array<Buffer> - returneaza datele brute   //read zip as Binary -- //Buffer packs up the data from ArrayBuffer for the fs
+  const buffer = Buffer.from(       //Array<Buffer> - datele brute   //read zip as Binary -- //Buffer packs up the data from ArrayBuffer for the fs
     await zipResponse.arrayBuffer()
 ); 
 
   const folderName = numeJudet.trim().toLowerCase();
+  const judetDir = path.join(ARCHIVE_DIR, folderName); // ...\scraper-iapsai\archive\Alba
   
-  await fs.mkdir(folderName, {recursive: true});
-  await fs.writeFile(`${folderName}/archive.zip`, buffer)
+  await fs.mkdir(judetDir, {recursive: true});
+  await fs.writeFile(`${judetDir}/archive.zip`, buffer);  // ...\scraper-iapsai\archive\Alba\archive.zip
 }
 
-let response = await getData("Dolj");
+let response = await getData("Iasi");
