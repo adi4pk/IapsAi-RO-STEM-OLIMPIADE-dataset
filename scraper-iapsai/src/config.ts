@@ -12,3 +12,6 @@ export const PNG_DIR = path.join(ROOT_DIR, "png");
 
 
 
+/////SSMR
+export const MIN_YEAR = 2012;
+

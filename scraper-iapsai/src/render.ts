@@ -68,11 +68,11 @@ async function pdfToPng(numeJudet: string) {
         await execFileAsync("pdftoppm", [
             "-png",
             "-r",
-            "300",
+            "300",      //DPI
             pdfPath,
             outputPrefix
         ]);
     }
 }
 
-await pdfToPng("dolj");
+await pdfToPng("iasi");

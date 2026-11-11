@@ -4,12 +4,12 @@ import * as fs from "fs/promises";
 import * as path from "path";
 
 
-import { DOWNLOAD_DIR, ARCHIVE_DIR } from "./config";
+import { DOWNLOAD_DIR, ARCHIVE_DIR, MIN_YEAR } from "./config";
 
 
-let url:string = "https://ssmr.ro/onm2024";
+const url:string = "https://ssmr.ro/onm";
 
-export async function getData(numeJudet: string) {
+export async function getData(numeJudet: string, an:number) {
   const headers: HeadersInit = {
     accept:
       "text/html,application/xhtml+xml,application/xml;q=0.9,image/jxl,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
@@ -18,8 +18,19 @@ export async function getData(numeJudet: string) {
     "user-agent": "Mozilla/5.0",
   };
 
+  let urlWithYear:string = `${url}${an}`;
+
+
+  //0. VALIDATE year
+  const currentYear = new Date().getFullYear();
+  if(!an || an < MIN_YEAR || an > currentYear){
+    throw new RangeError(
+      `An invalid: ${an}. Datele exista doar intre anii ${MIN_YEAR} si ${currentYear}.`
+    );
+  }
+
   //1. FETCH Main page
-  const response = await fetch(url, { headers });
+  const response = await fetch(urlWithYear, { headers });
   const html: string = await response.text();
   const $ = cheerio.load(html);
 
@@ -30,7 +41,7 @@ export async function getData(numeJudet: string) {
   }
   console.log("TEST :::" + iframeSrc);
 
-  const iframeUrl = new URL(iframeSrc, url).href;
+  const iframeUrl = new URL(iframeSrc, urlWithYear).href;
   console.log("iframe URL: ", iframeUrl);
 
   //3. Fetch iframe page
@@ -94,6 +105,9 @@ export async function getData(numeJudet: string) {
   
   await fs.mkdir(judetDir, {recursive: true});
   await fs.writeFile(`${judetDir}/archive.zip`, buffer);  // ...\scraper-iapsai\archive\Alba\archive.zip
+  
+
+  
 }
 
-let response = await getData("Iasi");
+getData("Olt", 1999);
