@@ -1,6 +1,9 @@
 import fs from "fs/promises";
 import path from "path";
 import { MARKDOWN_DIR, DATASET_DIR } from "./config";
+import type { ProblemMetadata } from "./models/ProblemMetaData";
+import type { ParsedProblem } from "./models/ParsedProblem";
+import { buildDatasetRecord } from "./datasetBuilder";
 
 interface Problema {
   numar: number;
@@ -8,100 +11,132 @@ interface Problema {
   subpuncte: string[];
 }
 
-async function parseMarkdown(
-  judet: string,
-  fileName: string
-): Promise<Problema[]> {
+function parseMarkdown(markdown: string): ParsedProblem[] {
 
+  const problems: ParsedProblem[] = [];
 
-  // Construim pathul
-const filePath = path.join(
-    MARKDOWN_DIR,
-    judet,
-    fileName
-  );
+  // extragem anul documentului
+  const anMatch = markdown.match(/\b(20\d{2})\b/);
+  const an = anMatch ? Number(anMatch[1]) : 0;
 
-  
-  // 1. Citim fisierul Markdown
-  const markdown = await fs.readFile(filePath, "utf8");
-
-  // 2. Facem split la document pe baza "## Problema x" sau "## Subiectul x"
-  const sections = markdown.split(/#{2,3}\s+(?:Problema|Subiectul)\s+\d+/gi);
+  // extragem JUDETUL
+  // const judetMatch = markdown.match(/Județ(?:ul)?[:\s]+([^\n]+)/i);
+  const judetMatch = markdown.match(/Etapa\s+(?:locală|locala|județeană|judeteana|națională|nationala)\s*,\s*([^\n]+)/i);
+  const judet = judetMatch ? judetMatch[1].trim() : undefined;
   
 
-  // Gasim separat numerele problemelor     -- returns an array of matches
-  const matches = [
-    ...markdown.matchAll(/#{2,3}\s+(?:Problema|Subiectul)\s+(\d+)/gi)
-  ];    //we use spread operator to consume the iterator's values
-  // e.g. markdown[0][0] = "Problema 1" -- [0] is the group, second [0] is entire text from group [0]
 
-  const probleme: Problema[] = [];
+  //extragem ETAPA
+  const etapaJudetMatch = markdown.match(/Etapa\s+(locală|locala|județeană|judeteana|națională|nationala)\s*,\s*([^\n]+)/i);
+  // const etapa = etapaJudetMatch ? etapaJudetMatch[1].toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, ""): "";
 
-  // 3. Procesam fiecare problema
-  for (let i = 1; i < sections.length; i++) {
-    const section = sections[i].split(/###\s+Timp de lucru/i)[0].trim();
-    const numar = Number(matches[i - 1][1]);
+  const etapaRaw = etapaJudetMatch
+    ? etapaJudetMatch[1]
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+    : "";
 
-    const lines = section
-      .split("\n")
-      .map((line) => line.trim())
-      .filter((line) => line.length > 0);
-
-    const subpuncte: string[] = [];
-    const enuntLines: string[] = [];
-
-    for (const line of lines) {
-      // identifica 1. 2. 3. etc.
-      const match = line.match(/^(?:\d+\.\s+|-\s+)(.*)$/);
-
-      if (match) {
-        subpuncte.push(match[1]);
-      } else {
-        enuntLines.push(line);
-      }
-    }
-
-    probleme.push({
-      numar,
-      enunt: enuntLines.join("\n"),
-      subpuncte,
-    });
+  if (
+    etapaRaw !== "locala" &&
+    etapaRaw !== "judeteana" &&
+    etapaRaw !== "nationala"
+  ) {
+    throw new Error("Etapa nu a putut fi identificata.");
   }
 
-  return probleme;
+const etapa: ParsedProblem["etapa"] = etapaRaw;
+
+
+// extragem CLASA
+  const clasaMatch = markdown.match(/Clasa\s+a\s+(IX|X|XI|XII)-a/i);
+
+  const romanToNumber: Record<string, number> = {IX: 9, X: 10, XI: 11, XII: 12};
+
+  const clasa = clasaMatch ? romanToNumber[clasaMatch[1].toUpperCase()]: 0;
+
+  // separam problemele
+  const sections = markdown.split(
+    /#{2,3}\s+(?:Problema|Subiectul)\s+\d+/gi
+  );
+
+  // extragem numerele problemelor
+  const matches = [
+    ...markdown.matchAll(
+      /#{2,3}\s+(?:Problema|Subiectul)\s+(\d+)/gi
+    )
+  ];
+
+  for (let i = 1; i < sections.length; i++) {
+
+    const section = sections[i]
+      .split(/###\s+Timp de lucru/i)[0]
+      .trim();
+
+    const nrProblema = Number(matches[i - 1][1]);
+
+    const problem: ParsedProblem = {
+      an,
+      judet,
+      etapa,
+      clasa,
+      nr_problema: nrProblema,
+      enunt: section
+    };
+
+    problems.push(problem);
+  }
+
+  return problems;
 }
 
 
 
-async function saveToJsonl(probleme: Problema[], fileName: string): Promise<void> {
+async function saveToJson(records: ReturnType<typeof buildDatasetRecord>[], fileName: string): Promise<void> {
+  
+  
+  const outputPath = path.join(
+    DATASET_DIR,
+    fileName.replace(".md", ".jsonl")
+  );
 
-  const jsonl = probleme.map((problema) => JSON.stringify(problema)).join("\n");
+  const jsonl = records
+    .map(record => JSON.stringify(record))
+    .join("\n");
 
-  await fs.mkdir(DATASET_DIR, {
-    recursive: true,
-  });
-
-  const outputPath = path.join(DATASET_DIR, fileName.replace(".md", ".jsonl"));
-
-  await fs.writeFile(outputPath, jsonl, "utf8");
+    
+  await fs.mkdir(path.dirname(outputPath), { recursive: true });
+  await fs.writeFile(outputPath, jsonl + "\n", "utf-8");;
 }
 
 
 async function markdownToJsonl(
-  judet: string,
   fileName: string
 ): Promise<void> {
 
-  const probleme = await parseMarkdown(
-    judet,
-    fileName
+  const markdownPath = path.join(MARKDOWN_DIR, fileName);
+  const markdown = await fs.readFile(markdownPath, "utf-8");
+
+  const probleme = parseMarkdown(markdown);
+
+  if (probleme.length === 0) {
+    throw new Error("Nu au fost gasite probleme in Markdown.");
+  }
+
+  const metadata: ProblemMetadata = {
+    materie: "matematica",
+    sursa_url: `https://ssmr.ro/onm${probleme[0].an}`,
+    fisier_sursa: "",
+    licenta: "© SSMR. Utilizare comercială doar cu acordul scris al SSMR."
+  };
+
+  const records = probleme.map(problem =>
+    buildDatasetRecord(problem, metadata)
   );
 
-  await saveToJsonl(
-    probleme,
-    fileName
-  );
+  await saveToJson(records, fileName);
 }
+
 
 
 // const probleme = await parseMarkdown(markdownPath);
@@ -110,4 +145,4 @@ async function markdownToJsonl(
 //   probleme,
 //   jsonlPath
 
-await markdownToJsonl("iasi", "10_H1_subiect.md");
+await markdownToJsonl("iasi/10_H1_subiect.md");
