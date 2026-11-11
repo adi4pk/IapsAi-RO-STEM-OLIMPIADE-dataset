@@ -11,12 +11,12 @@ async function parseMarkdown(filePath: string): Promise<Problema[]> {
   // 1. Citim fisierul Markdown
   const markdown = await fs.readFile(filePath, "utf8");
 
-  // 2. Facem split la document pe baza "## Problema X"
-  const sections = markdown.split(/##\s+Problema\s+\d+/i);
+  // 2. Facem split la document pe baza "## Problema x" sau "## Subiectul x"
+  const sections = markdown.split(/##\s+(?:Problema|Subiectul)\s+\d+/gi);
 
   // Gasim separat numerele problemelor     -- returns an array of matches
   const matches = [
-    ...markdown.matchAll(/##\s+Problema\s+(\d+)/gi)
+    ...markdown.matchAll(/##\s+(?:Problema|Subiectul)\s+\d+/gi);
   ];    //we use spread operator to consume the iterator's values
   // e.g. markdown[0][0] = "Problema 1" -- [0] is the group, second [0] is entire text from group [0]
 
